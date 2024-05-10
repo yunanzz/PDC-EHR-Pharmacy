@@ -7,6 +7,7 @@ pdc_dispensed <- function(ID, # column name of patient id in both data sets
                           
                           # Data file: Medication Dispensed
                           data_dispensed, # name of the Medication Dispensed Data
+                          Med = 'med_class', # column name of the medication class
                           Fill.Date, # column name of the medication fill date
                           Days.Supplied, # number of days supplied by the record
                           
@@ -35,6 +36,8 @@ pdc_dispensed <- function(ID, # column name of patient id in both data sets
   
   ActiveOrderList <- data_denom[,Pat.Med.ID]
   data_dispensed <- as.data.frame(data_dispensed)
+  data_dispensed[,'pat_med_id'] <- paste(data_dispensed[,ID],
+                                         data_dispensed[,Med])
   data_dispensed <- filter(data_dispensed, data_dispensed[,Pat.Med.ID] %in%
                              ActiveOrderList)
   data_dispensed <- filter(data_dispensed, data_dispensed[,Days.Supplied] >= 0)
