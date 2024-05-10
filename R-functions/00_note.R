@@ -1,19 +1,23 @@
 
-
 #########
 ## Load the Data ----------
 
-#data_visit
-#data_order
-#data_dispensed 
-#data_hosp
+library(readxl)
 
+#data_visit
+data_visit <- read_excel("Data/data_visit.xlsx")
+#data_order
+data_order <- read_excel("Data/data_order.xlsx")
+#data_dispensed 
+data_dispensed <- read_excel("Data/data_dispensed.xlsx")
+#data_hosp
+data_hosp <- read_excel("Data/data_hosp.xlsx")
 
 ## Step1: Load the `tidy-data` function  ----------
 
 source(here::here("01_tidy-data.R"))
 result_step1 <- pdc_date(
-  ID = 'pat_id', # column name of patient id in both data sets
+  ID = 'id', # column name of patient id in both data sets
   
   # Data file: Medication Order
   data_order = data_order, # name of the Medication Order Data
@@ -42,7 +46,7 @@ source(here::here("02_med-order-active.R"))
 # Need to make sure the patient has at least 1 active medicine on the visit day
 
 result_step2 <- pdc_med_active(
-  ID = 'pat_id', # column name of patient id in both data sets
+  ID = 'id', # column name of patient id in both data sets
   Pat.Med.ID = 'pat_med_id', # column name for specific patient med
   
   # Data file: Medication Order
@@ -61,7 +65,6 @@ PatMed.active <- result_step2[[2]]
 data_visit <- result_step2[[3]]
 data_order <- result_step2[[4]]
 
-
 ### Step2-2: Contiguous Medication Orders ----------
 
 # According to the result from previous code chunk
@@ -73,11 +76,10 @@ data_order <- result_step2[[4]]
 result_order_Contiguous <- pdc_order_contiguous(
  # Data file: Medication Order
   data_order = data_order, # 4th element from Step2-1
-  ID = 'pat_id', # column name of patient id
+  ID = 'id', # column name of patient id
   Pat.Med.ID = 'pat_med_id', # column name for specific patient med
   Start.Date = 'start_date', # column name of the start date
-  End.Date = 'end_date', # column name of the end date
-  Visit.Date = 'contact_date' # column name of the clinic visit day
+  End.Date = 'end_date' # column name of the end date
   )
 
 ## Step3: pdc denominator ----------
@@ -92,7 +94,7 @@ source(here::here("03_pdc-denominator.R"))
 result_Start.Date <- pdc_denominator_start(
   # Data file: Medication Order
   data_order = result_order_Contiguous, # result from Step2-2
-  ID = 'pat_id', # column name of patient id
+  ID = 'id', # column name of patient id
   Pat.Med.ID = 'pat_med_id', # column name for specific patient med
   Med = 'med_class', # column name of the medication class
   Period.Start = 'threshold_start', # follow-up period start
@@ -106,7 +108,7 @@ result_Start.Date <- pdc_denominator_start(
 ### Step3-2: Adjusting gaps between med orders: ----------
 
 result_Gap.Adjust <- pdc_Gap.Adjust(
-  ID = 'pat_id', # column name of patient id in both data sets
+  ID = 'id', # column name of patient id in both data sets
   Pat.Med.ID = 'pat_med_id', # column name for specific patient med
   
   # Data file: Medication Order
@@ -123,7 +125,7 @@ result_Gap.Adjust <- pdc_Gap.Adjust(
 ### Step3-3: Adjusting denominator start date of orders: ----------
 
 result_DenomStart.Adjust <- pdc_DenomStart.Adjust(
-  ID = 'pat_id', # column name of patient id in both data sets
+  ID = 'id', # column name of patient id in both data sets
   Pat.Med.ID = 'pat_med_id',  # column name for specific patient med
   
   # Data file: Medication Order
@@ -144,7 +146,7 @@ result_DenomStart.Adjust <- pdc_DenomStart.Adjust(
 ### Step3-4: Adjusting for Hospitalization ----------
 
 result_hosp <- pdc_hosp(
-  ID = 'pat_id',  # column name of patient id in both data sets
+  ID = 'id',  # column name of patient id in both data sets
   Pat.Med.ID = 'pat_med_id', # column name for specific patient med
   
   # Data file: Medication Order
@@ -174,13 +176,14 @@ data_denom_hosp <- result_hosp [[3]]
 source(here::here("04_med-dispensed.R"))
 
 data_dispensed <- pdc_dispensed(
-  ID = 'pat_id',  # column name of patient id in both data sets
+  ID = 'id',  # column name of patient id in both data sets
   Pat.Med.ID = 'pat_med_id', # column name for specific patient med
   
   # Data file: Medication Dispensed
-  data_dispensed = dispensed, # name of the Medication Dispensed Data
-  Fill.Date = 'ext_drug_disp_inst_dttm', # column name of the medication fill date
-  Days.Supplied = 'ext_med_day_supply', # number of days supplied by the record
+  data_dispensed = data_dispensed, # name of the Medication Dispensed Data
+  Med = 'med_class', # column name of the medication class
+  Fill.Date = 'fill_date', # column name of the medication fill date
+  Days.Supplied = 'days_supplied', # number of days supplied by the record
   
   # Data file: Med Order data with denominator
   data_denom = data_denom_hosp, # 3rd element from Step 3-4
@@ -193,12 +196,12 @@ data_dispensed <- pdc_dispensed(
 source(here::here("05_med-stockpiled.R"))
 
 result_stockpiled <- pdc_stockpiled(
-  ID = 'pat_id', # column name of patient id in both data sets
+  ID = 'id', # column name of patient id in both data sets
   Pat.Med.ID = 'pat_med_id', # column name for specific patient med
   
   # Data file: Medication Dispensed
   data_dispensed = data_dispensed, # result from Step 4
-  Fill.Date = 'ext_drug_disp_inst_dttm', # column name of the medication fill date
+  Fill.Date = 'fill_date', # column name of the medication fill date
   Fill.End = 'drug_disp_end', # column name of the medication fill end
   
   # Data file: Medication Order
@@ -223,7 +226,7 @@ data_stockpiled_denom <- result_stockpiled[[2]]
 source(here::here("06_med-carryover.R"))
 
 result_carryover <- pdc_carryover(
-  ID = 'pat_id', # column name of patient id in both data sets
+  ID = 'id', # column name of patient id in both data sets
   Pat.Med.ID = 'pat_med_id', # column name for specific patient med
   
   # Data file: Medication Order
@@ -244,7 +247,7 @@ result_carryover <- pdc_carryover(
   
   # Data file: Medication Dispensed
   data_dispensed = data_dispensed, # result from Step 4
-  Fill.Date = 'ext_drug_disp_inst_dttm', # column name of the medication fill date
+  Fill.Date = 'fill_date', # column name of the medication fill date
   Fill.End = 'drug_disp_end' # column name of the medication fill end
 )
 
@@ -256,7 +259,7 @@ data_carryover <- result_carryover[[2]]
 source(here::here("07_pdc-calculation.R"))
 
 result_pdc <- pdc_cal(
-  ID = 'pat_id', # column name of patient id in both data sets
+  ID = 'id', # column name of patient id in both data sets
   Pat.Med.ID = 'pat_med_id', # column name for specific patient med
   
   # Data file: Medication Order
@@ -274,7 +277,7 @@ result_pdc <- pdc_cal(
   
   # Data file: Medication Dispensed
   data_dispensed = data_dispensed, # name of the Medication Dispensed Data
-  Fill.Date = 'ext_drug_disp_inst_dttm', # column name of the medication fill date
+  Fill.Date = 'fill_date', # column name of the medication fill date
   Fill.End = 'drug_disp_end',  # column name of the medication fill end
   
   # Data file: Hospitalization
