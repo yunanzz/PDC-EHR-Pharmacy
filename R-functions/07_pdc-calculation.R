@@ -141,8 +141,10 @@ pdc_cal <- function(ID, # column name of patient id in both data sets
   # pdc per patient
   pdc_nmed <- aggregate(pat_pdc[,Pat.Med.ID], list(pat_pdc[,ID]),
                         FUN=function(x){NROW(x)})
-  pdc_temp <- aggregate(pat_pdc[,"PDCpat"], list(pat_pdc[,ID]), FUN = mean)
-  names(pdc_temp) <- c('pat_id','PDCavg')
+  pat_pdc[,Denominator] <- as.numeric(pat_pdc[,Denominator])
+  pat_pdc_28 <- filter(pat_pdc, pat_pdc[,Denominator] >= 28)
+  pdc_temp <- aggregate(pat_pdc_28[,"PDCpat"], list(pat_pdc_28[,ID]), FUN = mean)
+  names(pdc_temp) <- c(ID,'PDCavg')
   pdc_temp <- left_join(pdc_temp, unique(pat_pdc[,c(ID,Visit.Date)]))
 
   return(list(pat_pdc,pdc_temp))
