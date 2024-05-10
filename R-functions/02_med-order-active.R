@@ -54,7 +54,6 @@ pdc_med_active <- function(ID, # column name of patient id in both data sets
   return(list(Pat_active, PatMed_active, data_visit, ordered_active))  
 }
 
-
 ## Step2-2: Contiguous Medication Orders ----------
 
 # According to the result from previous code chunk
@@ -70,8 +69,7 @@ pdc_order_contiguous <- function(
     # Data file: Medication Order
     data_order, # 4th element from Step2-1
     Start.Date,  # column name of the start date
-    End.Date, # column name of the end date
-    Visit.Date # column name of the clinic visit day
+    End.Date # column name of the end date
     ){  
   
   # Set up R library
