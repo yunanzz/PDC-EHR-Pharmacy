@@ -223,10 +223,6 @@ pdc_hosp <- function(ID, # column name of patient id in both data sets
     data_hosp[,Disch.Date], function(date) {
       if (inherits(date, "POSIXt")) as.Date(date) else date
     })
-  data_hosp[,Visit.Date] <- lapply(
-    data_hosp[,Visit.Date], function(date) {
-      if (inherits(date, "POSIXt")) as.Date(date) else date
-    })
   data_hosp <- as.data.frame(data_hosp)
   
   # Sort the data set by ID, Adm.Date, Disch.Date
@@ -266,7 +262,7 @@ pdc_hosp <- function(ID, # column name of patient id in both data sets
     group_by(data_hosp3[["group"]]) %>%
     slice_tail() %>%
     ungroup %>%
-    select(1:4) 
+    select(1:3) 
     
   ActiveOrderList <- data_denom[,Pat.Med.ID]
   data_order <- as.data.frame(data_order)
