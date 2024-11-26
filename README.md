@@ -2,7 +2,7 @@
 
 This directory contains the R function to calculate EHR-Pharmacy PDC
 The algorithm to calculate PDC is based on the PDC definition updated Apr 2024 
-[link of the paper if published]
+[https://pubmed.ncbi.nlm.nih.gov/39585579/]
 
 To make full use of the code, it is important to have the following data files:
 1. `Data Order`  
